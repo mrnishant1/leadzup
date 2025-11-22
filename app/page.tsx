@@ -1,3 +1,4 @@
+"use client"
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
 import WhyReddit from "@/components/WhyReddit";
@@ -9,8 +10,12 @@ import HowItWorks from "@/components/HowItWorks";
 import Comparison from "@/components/Comparison";
 import CustomerQuestions from "@/components/CustomerQuestions";
 import Footer from "@/components/Footer";
+import { useEffect, useEffectEvent } from "react";
 
 export default function Home() {
+  useEffect(() => {
+    console.log(window.navigator.userAgent);
+  }, []);
   return (
     <div className="min-h-screen bg-white">
       <Header />
@@ -21,7 +26,7 @@ export default function Home() {
       <Features />
       <ROI />
       <HowItWorks />
-      <Comparison />
+      {/* <Comparison /> */}
       <CustomerQuestions />
       <Footer />
     </div>

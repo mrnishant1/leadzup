@@ -126,14 +126,14 @@ export default function WhyReddit() {
           </div>
         </div>
         
-        <div className="mt-12 text-center">
+        {/* <div className="mt-12 text-center">
           <svg className="w-12 h-12 text-orange-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
           </svg>
           <h3 className="text-3xl font-bold text-gray-900">
             BUT... Reddit Marketing Is <span className="text-orange-500 underline">Hard</span>
           </h3>
-        </div>
+        </div> */}
       </div>
     </section>
   );

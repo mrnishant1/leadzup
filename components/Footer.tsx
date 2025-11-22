@@ -11,15 +11,15 @@ export default function Footer() {
                 <path d="M15 7v2a4 4 0 01-4 4H9.828l-1.766 1.767c.28.149.599.233.938.233h2l3 3v-3h2a2 2 0 002-2V9a2 2 0 00-2-2h-1z" />
               </svg>
             </div>
-            <p className="text-sm">Turn Reddit DMs Into Customers. Find high impact Reddit conversations to help you naturally promote your product.</p>
+            <p className="text-sm">Turn Reddit Questions Into Customers. Find high impact Reddit conversations to help you naturally promote your product.</p>
           </div>
           
           <div>
             <h4 className="text-white font-semibold mb-4">Product</h4>
             <ul className="space-y-2 text-sm">
-              <li><a href="#" className="hover:text-white transition">Features</a></li>
-              <li><a href="#" className="hover:text-white transition">Pricing</a></li>
-              <li><a href="#" className="hover:text-white transition">How it Works</a></li>
+              <li><a href="#features" className="hover:text-white transition">Features</a></li>
+              <li><a href="/pricing" className="hover:text-white transition">Pricing</a></li>
+              <li><a href="#how-it-works" className="hover:text-white transition">How it Works</a></li>
               <li><a href="#" className="hover:text-white transition">FAQ</a></li>
             </ul>
           </div>
@@ -37,9 +37,9 @@ export default function Footer() {
           <div>
             <h4 className="text-white font-semibold mb-4">Legal</h4>
             <ul className="space-y-2 text-sm">
-              <li><a href="#" className="hover:text-white transition">Privacy Policy</a></li>
-              <li><a href="#" className="hover:text-white transition">Terms of Service</a></li>
-              <li><a href="#" className="hover:text-white transition">Cookie Policy</a></li>
+              <li><a href="/terms" className="hover:text-white transition">Privacy Policy</a></li>
+              <li><a href="/terms" className="hover:text-white transition">Terms of Service</a></li>
+              {/* <li><a href="#" className="hover:text-white transition">Cookie Policy</a></li> */}
             </ul>
           </div>
         </div>
