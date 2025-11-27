@@ -1,15 +1,53 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
-  provider = "prisma-client"
-  output   = "../lib/generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model preExistingUsers{
+  id String @id @default(uuid())
+  gmail String @unique
+}
+
+model UserData {
+  id             String           @id @default(uuid())
+  gmail          String           @unique
+  PurposeOfUse   String
+  website        String
+  description    String
+  keywords       String[]
+  competitors    String[]
+  activePlan     String
+  isDemoProvided Boolean
+  currentCredits Int
+  leads          GeneratedLeads[]
+  directMessages directMessages[]
+
+  @@map("UserData")
+}
+
+model GeneratedLeads {
+  id     Int      @id @default(autoincrement())
+  post   String
+  time   DateTime @default(now())
+  userId String
+  user   UserData @relation(fields: [userId], references: [id])
+
+  @@map("GeneratedLeads")
+}
+
+model directMessages {
+  id      Int      @id @unique @default(autoincrement())
+  message String
+  userId  String
+  user    UserData @relation(fields: [userId], references: [id])
+
+  @@map("directMessages")
+}
+

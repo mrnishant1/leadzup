@@ -1,54 +1,78 @@
+"use client";
+import { signIn, signOut, useSession } from "next-auth/react";
+import type { Session } from "next-auth";
+import { useEffect, useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { clientContext } from "@/context/ClientDataContext";
+import axios from "axios";
+import "./page.css";
+
 const navItems = [
-  { label: "Home", href: "#", active: true },
-  { label: "Product", href: "#", active: false },
-  { label: "Leads", href: "#", active: false },
-  { label: "DMs (Reddit)", href: "#", active: false },
-  { label: "Settings", href: "#", active: false },
-  { label: "Billing", href: "#", active: false },
-];
-
-const statCards = [
-  {
-    label: "Total Leads",
-    value: "632",
-    sublabel: "0 today",
-    footer: "Qualified: 17",
-    progress: 0.17,
-    accent: "bg-blue-100 text-blue-600",
-  },
-  {
-    label: "Qualified Leads",
-    value: "17",
-    sublabel: "0 today",
-    footer: "New: 17  Contacted: 0  Replied: 0",
-    progress: 1,
-    accent: "bg-green-100 text-green-600",
-  },
-  {
-    label: "DMs Sent",
-    value: "0",
-    sublabel: "0 today",
-    footer: "Active: 0  Conversations",
-    progress: 0,
-    accent: "bg-purple-100 text-purple-600",
-  },
-  {
-    label: "Plan Usage",
-    value: "100",
-    sublabel: "leads remaining",
-    footer: "0/100",
-    progress: 0,
-    accent: "bg-orange-100 text-orange-600",
-  },
-];
-
-const quickActions = [
-  { label: "Find New Leads", description: "Search for customer pain points" },
-  { label: "Send DMs", description: "Message your qualified leads" },
-  { label: "View All Leads", description: "Manage your lead pipeline" },
+  { label: "Home", href: "#" },
+  { label: "Generated Leads", href: "#" },
+  { label: "DMs (Reddit)", href: "#" },
+  { label: "Profile", href: "#" },
 ];
 
 export default function DashboardPage() {
+  const { data: session, status } = useSession();
+  const [userStatus, setuserStatus] = useState<string>(status);
+  const [userSession, setuserSession] = useState<Session | undefined>(
+    session ?? undefined
+  );
+  const [active, setActive] = useState<string>("Home");
+  const [leadsToday, setLeadsToday] = useState<number>(0);
+  const [DMs, setDMs] = useState<number>(0);
+  useEffect(() => {
+    setuserStatus(status);
+    setuserSession(session ?? undefined);
+  }, [status, session]);
+
+  if (userStatus === "unauthenticated") {
+    return (
+      <div className="flex flex-col w-full h-full justify-center items-center">
+        <div>Unauthenticated</div>
+        <button className="cursor-pointer" onClick={() => signIn("google")}>
+          Signin
+        </button>
+      </div>
+    );
+  }
+
+  const userDataContext = clientContext();
+  const setUserData = userDataContext?.setUserData;
+  const userData = userDataContext?.userData;
+
+  if (userData === undefined || setUserData === undefined) return;
+
+  if (userData === null && userStatus === "authenticated") {
+    async function checkOnBoarding() {
+      try {
+        if (session === null) return;
+        const gmail = session.user?.email;
+        const res = await axios.post("/api/check-onboarding", { gmail });
+        if (res.data) {
+          setUserData!(res.data);
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    checkOnBoarding();
+  }
+
+  if (userStatus === "loading" || !userData) {
+    console.log(userData + "Hiiiiiiiiiiiiiiiiiiiiiiii000000000");
+    return (
+      <div className="heartbeat flex h-screen w-screen lg:text-9xl md:text-5xl text-3xl  text-gray-600 justify-center items-center">
+        Loading...
+      </div>
+    );
+  }
+
+  console.log("HIiiiiiiiiiiii33333333333333" + userData);
+
   return (
     <div className="min-h-screen bg-[#f7f9fd] text-gray-900">
       <div className="flex min-h-screen">
@@ -58,11 +82,11 @@ export default function DashboardPage() {
             {navItems.map((item) => (
               <button
                 key={item.label}
-                className={`flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left text-sm ${
-                  item.active
-                    ? "bg-orange-50 font-semibold text-orange-600"
-                    : "text-gray-600 hover:bg-gray-50"
-                }`}
+                onClick={() => setActive(item.label)}
+                className={`flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left text-sm`}
+                style={{
+                  backgroundColor: item.label === active ? "#FF6B1241" : "",
+                }}
               >
                 <span className="h-2 w-2 rounded-full bg-current" />
                 {item.label}
@@ -70,8 +94,16 @@ export default function DashboardPage() {
             ))}
           </nav>
           <div className="mt-auto flex flex-col items-center gap-3">
-            <div className="h-12 w-12 rounded-full bg-gray-100" />
-            <p className="text-sm font-medium">Holly Neil</p>
+            <Image
+              alt="User image"
+              src={userSession?.user?.image || "/user.png"}
+              height={10}
+              width={10}
+              className="h-12 w-12 rounded-full bg-gray-100"
+            ></Image>{" "}
+            <p className="text-sm font-medium">
+              {userSession?.user?.name || "User"}
+            </p>
           </div>
         </aside>
 
@@ -79,49 +111,178 @@ export default function DashboardPage() {
           <header className="flex flex-wrap items-center justify-between gap-3">
             <div>
               <p className="text-sm text-gray-500">Dashboard</p>
-              <h1 className="text-2xl font-semibold">Welcome back! Here’s your lead generation overview.</h1>
+              <h1 className="text-2xl font-semibold">
+                Welcome back! Here’s your lead generation overview.
+              </h1>
             </div>
-            <button className="rounded-full border border-orange-200 px-4 py-2 text-sm font-semibold text-orange-600">
-              Scout Plan
-            </button>
+            <Link
+              href={"/pricing"}
+              className="rounded-full border border-orange-200 px-4 py-2 text-sm font-semibold text-orange-600"
+            >
+              Scout Plans
+            </Link>
           </header>
 
-          <section className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            {statCards.map((card) => (
-              <div key={card.label} className="rounded-3xl border border-gray-100 bg-white p-5 shadow-sm">
-                <div className="flex items-center justify-between text-sm text-gray-500">
-                  <span>{card.label}</span>
-                  <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${card.accent}`}>{card.sublabel}</span>
+          {active === "Home" && (
+            <>
+              <section className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                <div className="rounded-3xl border text-gray-500 border-gray-100 bg-white p-5 shadow-sm">
+                  <span className="font-bold">Leads Today</span>{" "}
+                  <p className="mt-4 text-4xl font-bold">{leadsToday}</p>
+                  <p className="mt-2 text-sm text-gray-500"></p>
                 </div>
-                <p className="mt-4 text-4xl font-bold">{card.value}</p>
-                <p className="mt-2 text-sm text-gray-500">{card.footer}</p>
-                <div className="mt-4 h-2 w-full rounded-full bg-gray-100">
-                  <div
-                    className="h-2 rounded-full bg-orange-400"
-                    style={{ width: `${Math.max(0.05, card.progress) * 100}%` }}
-                  />
+                <div className="rounded-3xl border text-gray-500 border-gray-100 bg-white p-5 shadow-sm">
+                  <span className="font-bold">DM (Reddit)</span>{" "}
+                  <p className="mt-4 text-4xl font-bold">{DMs}</p>
+                  <p className="mt-2 text-sm text-gray-500"></p>
                 </div>
-              </div>
-            ))}
-          </section>
+                <div className="rounded-3xl border text-gray-500 border-gray-100 bg-white p-5 shadow-sm">
+                  <span className="font-bold">Credits</span>{" "}
+                  <p className="mt-4 text-4xl font-bold">
+                    {userData.currentCredits}
+                  </p>
+                  <p className="mt-2 text-sm text-gray-500"></p>
+                </div>
+                <div className="rounded-3xl border text-gray-500 border-gray-100 bg-white p-5 shadow-sm">
+                  <span className="font-bold">Active Plan</span>{" "}
+                  <p className="mt-4 text-4xl font-bold">
+                    {userData.activePlan}
+                  </p>
+                  <p className="mt-2 text-sm text-gray-500"></p>
+                </div>
+              </section>
 
-          <section className="mt-8 rounded-3xl border border-gray-100 bg-white p-6 shadow-sm">
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold">Quick Actions</h2>
-              <button className="text-sm font-semibold text-orange-500">See all</button>
-            </div>
-            <div className="mt-4 grid gap-4 md:grid-cols-3">
-              {quickActions.map((action) => (
-                <div key={action.label} className="rounded-2xl border border-gray-100 px-4 py-5">
-                  <p className="text-sm font-semibold text-gray-500">{action.label}</p>
-                  <p className="mt-2 text-sm text-gray-600">{action.description}</p>
+              <section className="mt-8 rounded-3xl border border-gray-100 bg-white p-6 shadow-sm">
+                <div className="flex flex-col w-full h-full ">
+                  <h2 className="text-lg font-semibold relative top-0">
+                    Leads Generated Today
+                  </h2>
+                  <div className="h-full w-full"></div>
                 </div>
-              ))}
-            </div>
-          </section>
+              </section>
+            </>
+          )}
+
+          {active === "Generated Leads" && (
+            <section className="w-[80%] h-[80%] flex flex-col gap-1.5 mt-8 rounded-3xl border border-gray-100 bg-white p-6 shadow-sm">
+              <div className="flex flex-col w-full h-full ">
+                <h2 className="text-lg font-semibold relative top-0">
+                  All Leads Generated
+                </h2>
+                <div className="h-full w-full"></div>
+              </div>
+            </section>
+          )}
+          {active === "DMs (Reddit)" && (
+            <section className="w-[80%] h-[80%] flex flex-col gap-1.5 mt-8 rounded-3xl border border-gray-100 bg-white p-6 shadow-sm">
+              <div className="flex flex-col w-full h-full ">
+                <h2 className="text-lg font-semibold relative top-0">
+                  Personalised Dms
+                </h2>
+                <div className="h-full w-full"></div>
+              </div>
+            </section>
+          )}
+          {active === "Profile" && (
+            <>
+              <section className="w-[80%]  flex flex-col gap-1.5 mt-8 rounded-3xl border border-gray-100 bg-white p-6 shadow-sm">
+                <h3 className="text-2xl font-extrabold text-gray-800 mb-6 flex items-center">
+                  🎯 Strategic Profile & Usage
+                </h3>
+
+                {/* 1. Core Strategic Fields (Website, Description, Keywords) */}
+                <div className="space-y-4 mb-8">
+                  {/* PurposeOfUse */}
+                  <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                    <p className="text-xs font-semibold uppercase text-indigo-500">
+                      PurposeOfUse
+                    </p>
+                    <p className="text-base text-gray-900 wrap-break-word pt-1">
+                      {userData.PurposeOfUse}
+                    </p>
+                  </div>
+                  {/* Website */}
+                  <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                    <p className="text-xs font-semibold uppercase text-indigo-500">
+                      Website
+                    </p>
+                    <p className="text-base text-gray-900 wrap-break-word pt-1">
+                      {userData.website}
+                    </p>
+                  </div>
+
+                  {/* Description */}
+                  <div className="p-4 bg-white rounded-lg border border-gray-200">
+                    <p className="text-xs font-semibold uppercase text-indigo-500">
+                      Description
+                    </p>
+                    <p className="text-base text-gray-700 pt-1 whitespace-pre-line">
+                      {userData.description}
+                    </p>
+                  </div>
+
+                  {/* Keywords */}
+                  <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                    <p className="text-xs font-semibold uppercase text-indigo-500">
+                      Keywords
+                    </p>
+                    <div className="text-base text-gray-900 pt-1 break-words flex gap-1.5">
+                      {userData.keywords.map((keyword, i) => (
+                        keyword.trim()?<div
+                          key={i}
+                          className=" text-gray-600 text-md rounded-xl border border-gray-100 bg-white p-1 shadow-sm"
+                        >
+                          {keyword.trim()}{" "}
+                        </div>:<div key={i}></div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* 2. Usage & Competitor Section (Grid Layout) */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 border-t pt-6 border-gray-200">
+                  {/* Credits Card */}
+                  <div className="bg-orange-50 border border-orange-200 rounded-xl p-5 text-center shadow-sm">
+                    <p className="text-sm font-medium text-orange-700">
+                      Available Credits
+                    </p>
+                    <p className="text-4xl font-extrabold text-orange-600 mt-1">
+                      {userData.currentCredits}
+                    </p>
+                  </div>
+
+                  {/* Plan Card */}
+                  <div className="bg-blue-50 border border-blue-200 rounded-xl p-5 text-center shadow-sm">
+                    <p className="text-sm font-medium text-blue-700">
+                      Current Plan
+                    </p>
+                    <p className="text-2xl font-bold text-blue-600 mt-2">
+                      {userData.activePlan}
+                    </p>
+                  </div>
+
+                  {/* Competitors List */}
+                  <div className="bg-gray-50 border border-gray-200 rounded-xl p-5 shadow-sm md:col-span-1">
+                    <p className="text-sm font-medium text-gray-700 mb-2">
+                      Key Competitors
+                    </p>
+                    <p className="text-sm text-gray-600 italic break-words">
+                      {userData.competitors}
+                    </p>
+                  </div>
+                </div>
+                <br />
+                <button
+                  className="text-gray-400 text-sm cursor-pointer relative left-0 w-fit"
+                  onClick={() => signOut()}
+                >
+                  Logout
+                </button>
+              </section>
+            </>
+          )}
         </main>
       </div>
     </div>
   );
 }
-

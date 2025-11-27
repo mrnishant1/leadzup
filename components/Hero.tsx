@@ -2,6 +2,7 @@
 
 import { useCallback, useMemo, useState } from "react";
 import Chatbot from "./chatbot";
+import Progress from "./progress";
 
 export default function Hero() {
   return (
@@ -225,6 +226,7 @@ export default function Hero() {
         </div>
         <Chatbot/>
       </section>
+      <Progress />
     </>
   );
 }

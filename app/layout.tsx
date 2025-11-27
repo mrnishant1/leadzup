@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import { SessionProvider } from "next-auth/react";
+import { UserProvider } from "@/context/ClientDataContext";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -9,7 +11,8 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: "Leadzup - Get Customers From Reddit",
-  description: "Turn Reddit DMs Into Customers. Find high impact Reddit conversations to help you naturally promote your product and get more sales.",
+  description:
+    "Turn Reddit DMs Into Customers. Find high impact Reddit conversations to help you naturally promote your product and get more sales.",
 };
 
 export default function RootLayout({
@@ -20,7 +23,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.variable} antialiased`}>
-        {children}
+        <UserProvider>{children}</UserProvider>
       </body>
     </html>
   );

@@ -1,7 +1,18 @@
-import { signIn } from "next-auth/react";
+"use client";
+import { Session, SessionOptions } from "next-auth";
+import { SessionProvider, signIn, useSession } from "next-auth/react";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 
 export default function Header() {
+  const { data: session, status } = useSession();
+  const [userStatus, setuserStatus] = useState<string>();
+  useEffect(() => {
+    if (session) {
+      setuserStatus(status);
+    }
+  }, [session]);
+
   return (
     <header className="sticky top-0 z-50 w-full bg-white/95 backdrop-blur-sm border-b border-gray-200">
       <nav className="container mx-auto px-6 py-4 flex items-center justify-between">
@@ -57,12 +68,22 @@ export default function Header() {
         </div>
 
         <div className="flex items-center gap-4">
-          <button
-            onClick={async () => await signIn("google")}
-            className="text-gray-700 hover:text-orange-500 transition"
-          >
-            Login
-          </button>
+          {userStatus === "authenticated" ? (
+            <>
+              <Link href={'/dashboard'} className="text-gray-700 hover:text-orange-500 transition">
+                Dashboard
+              </Link>
+            </>
+          ) : (
+            <>
+              <button
+                onClick={async () => await signIn("google")}
+                className="text-gray-700 hover:text-orange-500 transition"
+              >
+                Login
+              </button>
+            </>
+          )}
           <Link
             href="#cta"
             className="bg-orange-500 md:text-md text-xs hover:bg-orange-600 text-white px-6 py-2 rounded-lg font-medium transition flex items-center gap-2"

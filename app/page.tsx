@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
 import WhyReddit from "@/components/WhyReddit";
@@ -11,6 +11,7 @@ import Comparison from "@/components/Comparison";
 import CustomerQuestions from "@/components/CustomerQuestions";
 import Footer from "@/components/Footer";
 import { useEffect, useEffectEvent } from "react";
+import { SessionProvider } from "next-auth/react";
 
 export default function Home() {
   useEffect(() => {
@@ -18,17 +19,19 @@ export default function Home() {
   }, []);
   return (
     <div className="min-h-screen bg-white">
-      <Header />
-      <Hero />
-      <WhyReddit />
-      <RedditMarketingHard />
-      <TwoWays />
-      <Features />
-      <ROI />
-      <HowItWorks />
-      {/* <Comparison /> */}
-      <CustomerQuestions />
-      <Footer />
+      <SessionProvider>
+        <Header />
+        <Hero />
+        <WhyReddit />
+        <RedditMarketingHard />
+        <TwoWays />
+        <Features />
+        <ROI />
+        <HowItWorks />
+        {/* <Comparison /> */}
+        <CustomerQuestions />
+        <Footer />
+      </SessionProvider>
     </div>
   );
 }
