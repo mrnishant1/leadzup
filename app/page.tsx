@@ -14,9 +14,6 @@ import { useEffect, useEffectEvent } from "react";
 import { SessionProvider } from "next-auth/react";
 
 export default function Home() {
-  useEffect(() => {
-    console.log(window.navigator.userAgent);
-  }, []);
   return (
     <div className="min-h-screen bg-white">
       <SessionProvider>

@@ -36,8 +36,8 @@ model GeneratedLeads {
   id     Int      @id @default(autoincrement())
   post   String
   time   DateTime @default(now())
-  userId String
-  user   UserData @relation(fields: [userId], references: [id])
+  userMail String
+  user   UserData @relation(fields: [userMail], references: [gmail])
 
   @@map("GeneratedLeads")
 }
@@ -49,5 +49,14 @@ model directMessages {
   user    UserData @relation(fields: [userId], references: [id])
 
   @@map("directMessages")
+}
+
+model rawPostsMatched{
+  id Int @id @default(autoincrement())
+  gmail String
+  title String
+  postId String 
+  link String
+  createdAt DateTime @default(now())
 }
 

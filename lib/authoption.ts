@@ -1,6 +1,7 @@
 import { prisma } from "../lib/prismaclient";
 import { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
+import sendMail from "./sendMail";
 
 export const authOptions: NextAuthOptions = {
   //   pages: {
@@ -34,6 +35,7 @@ export const authOptions: NextAuthOptions = {
             data: { gmail: user.email },
           });
           if (res.id) {
+            sendMail(user.email);
             return true;
           }
         }

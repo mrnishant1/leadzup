@@ -1,6 +1,6 @@
 "use client";
 
-import { UserDataType, clientContext } from "@/context/ClientDataContext";
+import { clientContext } from "@/context/ClientDataContext";
 import axios from "axios";
 import { LogOut } from "lucide-react";
 import { Session } from "next-auth";
@@ -11,8 +11,9 @@ export default function Progress() {
   const [currentStep, setCurrentStep] = useState(1);
   const [companyWebsite, setCompanyWebsite] = useState("");
   const [companyDescription, setCompanyDescription] = useState("");
-  const [Keywords, setKeywords] = useState<string[]>(["", "", ""]);
+  const [Keywords, setKeywords] = useState<string[]>([]);
   const [totalCompititors, setTotalCompititors] = useState(1);
+  const [totalCustomKeywords, setTotalCustomKeywords] = useState(3);
   const [competitors, setCompetitors] = useState<string[]>([""]);
   const [selectedPlan, setSelectedPlan] = useState<
     "Value Pack" | "Micro Pack" | "Bulk Pack" | "Demo"
@@ -26,7 +27,7 @@ export default function Progress() {
     "Marketing" | "Job Hunt" | "Freelancing Leads"
   >();
   const [currentCredits, setCurrentCredits] = useState<number>(50);
-  
+
   const ArrowRightSVG: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
     <svg
       {...props}
@@ -100,6 +101,8 @@ export default function Progress() {
 
   //--------------------------------checking Is onboarded??
   useEffect(() => {
+    if (isOnboarded === true) return; //if is already onboard no need to call api on every re-render
+
     if (status !== "authenticated" || !session?.user?.email) {
       setIsOnboarded(null);
       return;
@@ -112,11 +115,10 @@ export default function Progress() {
       try {
         const gmail = session.user?.email;
         const res = await axios.post("/api/check-onboarding", { gmail });
-        const exists = res.data.response !== null;
+        const exists = res.data.exists;
         setIsOnboarded(exists);
         if (exists) {
-          clientContextContext?.setUserData(res.data)
-
+          clientContextContext?.setUserData(res.data.neededResponse);
         }
       } catch (err) {
         console.error(err);
@@ -127,62 +129,105 @@ export default function Progress() {
     checkOnboarding();
   }, [status, session]);
 
+  const handleWebVerification = async (companyWebsite: string) => {
+    if (!companyWebsite || companyWebsite.trim() === "") {
+      alert("Please enter a website URL");
+      return;
+    }
+
+    // Normalize URL (add https if missing)
+    let url = companyWebsite.trim();
+    try {
+      // throws if invalid
+      // eslint-disable-next-line no-new
+      new URL(url);
+    } catch {
+      url = "https://" + url;
+      try {
+        // eslint-disable-next-line no-new
+        new URL(url);
+      } catch {
+        alert("Invalid URL");
+        return;
+      }
+    }
+
+    // Fallback: verify server-side to avoid CORS issues.
+    // Implement /api/verify-website on the server to perform a HEAD/GET request and return { exists: boolean }.
+    try {
+      const res = await axios.post("/api/verify-website", { url });
+      if (res.data?.exists) {
+        setCompanyDescription(res.data.description);
+        // console.log(res.data.description);
+        setCurrentStep((prev) => prev + 1);
+      } else {
+        alert("Website could not be reached or does not exist");
+      }
+    } catch (err) {
+      console.error("Server-side verification failed:", err);
+      alert(
+        "Could not verify website. Please check the URL or try again later."
+      );
+    }
+  };
+
   const updateCompetitor = (index: number, value: string) => {
     if (competitors.length === 0) return;
     const updated = [...competitors];
     updated[index] = value;
     setCompetitors(updated);
   };
+
   const handleFinish = async () => {
-    console.log(
-      userSession?.user?.email,
-      PurposeOfUse,
-      companyWebsite,
-      companyDescription,
-      Keywords,
-      competitors,
-      selectedPlan,
-      currentCredits
-    );
-    if (
-      userSession?.user?.email &&
-      PurposeOfUse &&
-      companyWebsite &&
-      companyDescription &&
-      Keywords &&
-      competitors &&
-      selectedPlan &&
-      currentCredits
-    ) {
+    const missing = [];
+
+    if (!userSession?.user) missing.push("Missing authentication user");
+    if (!PurposeOfUse) missing.push("Purpose of use");
+    if (!companyWebsite) missing.push("Company website");
+    if (!companyDescription) missing.push("Company description");
+    if (Keywords.length < 3) missing.push("At least 3 keywords");
+    if (!competitors) missing.push("Competitors");
+    if (!selectedPlan) missing.push("Plan selection");
+    if (!currentCredits) missing.push("Credits");
+
+    if (missing.length > 0) {
+      alert(`Please fill the following fields:\n- ${missing.join("\n- ")}`);
+      return;
+    }
+
+    // Everything is valid
+    try {
       const res = await axios.post("/api/update-onboarding", {
-        gmail: userSession?.user?.email,
-        PurposeOfUse: PurposeOfUse,
+        gmail: userSession?.user!.email,
+        PurposeOfUse,
         website: companyWebsite,
         description: companyDescription,
         keywords: Keywords,
-        competitors: competitors,
+        competitors,
         activePlan: selectedPlan,
         isDemoProvided: true,
-        currentCredits: currentCredits,
+        currentCredits,
       });
+
       if (res.status === 200) {
         setIsOnboarded(true);
       }
-    } else {
-      alert("Fill all details");
+    } catch (err) {
+      console.error(err);
     }
   };
 
   const handleBuy = () => {
-    console.log("bought");
-    handleFinish();
+    // console.log("bought");
+    console.log("Still working on it");
+    // handleFinish();
   };
   const handleKeywordChange = (
     index: number,
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
     const newKeywords = [...Keywords];
-    newKeywords[index] = e.target.value;
+    newKeywords[index] = e.target.value.trim();
     setKeywords(newKeywords);
   };
   const handleMoreKeyword = (keyword: "add" | "remove") => {
@@ -241,7 +286,7 @@ export default function Progress() {
                         Company Website
                       </label>
                       <input
-                        type="text"
+                        type="url"
                         value={companyWebsite}
                         onChange={(e) => setCompanyWebsite(e.target.value)}
                         placeholder="https://example.com"
@@ -272,7 +317,7 @@ export default function Progress() {
                     </div>
                   </div>
                   <button
-                    onClick={() => setCurrentStep((prev) => prev + 1)}
+                    onClick={() => handleWebVerification(companyWebsite)}
                     disabled={!companyWebsite || !PurposeOfUse}
                     className=" bg-orange-500 hover:bg-orange-600 text-white px-8 py-3 rounded-lg font-semibold transition flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
@@ -324,14 +369,12 @@ export default function Progress() {
                           </label>
                           {[...Array(Math.min(totalCompititors, 3))].map(
                             (_, index) => (
-                              console.log("hi" + index),
                               (
-                                <div className="mt-1">
+                                <div className="mt-1" key={index}>
                                   <input
                                     id={`website-${index}`}
                                     name="website"
                                     type="url"
-                                    key={index}
                                     value={competitors[index] ?? ""}
                                     placeholder="https://www.company.com"
                                     className="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-orange-500 focus:border-orange-500"
@@ -421,22 +464,34 @@ export default function Progress() {
                           </span>
                         </label>
                         <div className="grid grid-cols-3 gap-4">
-                          {Keywords.map((keyword: string, index) => (
-                            <input
-                              key={index} // Using index as key is generally discouraged but acceptable for dynamic lists without reordering
-                              type="text"
-                              className="w-full text-xs px-3 py-1 border border-gray-300 rounded-xl shadow-sm text-gray-800 "
-                              placeholder={`Keyword ${index + 1}`}
-                              value={keyword}
-                              onChange={(e) => handleKeywordChange(index, e)}
-                            />
-                          ))}
+                          {[...Array(Math.min(totalCustomKeywords, 5))].map(
+                            (_, index) => (
+                              <div className="mt-1" key={index}>
+                                <input
+                                  id={`website-${index}`}
+                                  name="website"
+                                  type="text"
+                                  value={Keywords[index]}
+                                  placeholder={`keywords ` + index}
+                                  className="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-orange-500 focus:border-orange-500"
+                                  onChange={(e) =>
+                                    handleKeywordChange(index, e)
+                                  }
+                                  required
+                                />
+                              </div>
+                            )
+                          )}
                         </div>
 
                         <div className="flex justify-between">
                           <button
                             type="button"
-                            onClick={() => handleMoreKeyword("add")}
+                            onClick={() =>
+                              setTotalCustomKeywords((prev) =>
+                                Math.min(prev + 1, 6)
+                              )
+                            }
                             className="mt-6 inline-flex items-center p-2 border border-gray-300 rounded-xl 
                        text-gray-700 font-semibold bg-white hover:bg-gray-50 
                        transition-colors shadow-sm"
@@ -445,7 +500,11 @@ export default function Progress() {
                           </button>
                           <button
                             type="button"
-                            onClick={() => handleMoreKeyword("remove")}
+                            onClick={() =>
+                              setTotalCustomKeywords((prev) =>
+                                Math.max(prev - 1, 3)
+                              )
+                            }
                             className="mt-6 inline-flex items-center p-2 border border-gray-300 rounded-xl 
                        text-gray-700 font-semibold bg-white hover:bg-gray-50 
                        transition-colors shadow-sm"
@@ -453,6 +512,12 @@ export default function Progress() {
                             Remove
                           </button>
                         </div>
+                        <span className="text-xs text-gray-400">
+                          Note* Add custom keywords you wants to track in the
+                          post (Max 5),
+                          <br /> Don't worry we'll do Best SEO research for you
+                          on our side as well.
+                        </span>
                       </div>
                     </div>
                     <div className="pt-8 border-t border-gray-100 flex justify-between">

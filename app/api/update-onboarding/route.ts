@@ -16,18 +16,6 @@ export async function POST(request: Request) {
       currentCredits,
     } = await request.json();
 
-    console.log(
-      gmail,
-      PurposeOfUse,
-      website,
-      description,
-      keywords,
-      competitors,
-      activePlan,
-      isDemoProvided,
-      currentCredits
-    );
-
     const response = await prisma.userData.create({
       data: {
         gmail,

@@ -52,8 +52,8 @@ export default function DashboardPage() {
         if (session === null) return;
         const gmail = session.user?.email;
         const res = await axios.post("/api/check-onboarding", { gmail });
-        if (res.data) {
-          setUserData!(res.data);
+        if (res.data.exists) {
+          setUserData!(res.data.neededResponse);
         }
       } catch (err) {
         console.error(err);
@@ -63,7 +63,6 @@ export default function DashboardPage() {
   }
 
   if (userStatus === "loading" || !userData) {
-    console.log(userData + "Hiiiiiiiiiiiiiiiiiiiiiiii000000000");
     return (
       <div className="heartbeat flex h-screen w-screen lg:text-9xl md:text-5xl text-3xl  text-gray-600 justify-center items-center">
         Loading...
@@ -71,13 +70,11 @@ export default function DashboardPage() {
     );
   }
 
-  console.log("HIiiiiiiiiiiii33333333333333" + userData);
-
   return (
     <div className="min-h-screen bg-[#f7f9fd] text-gray-900">
       <div className="flex min-h-screen">
         <aside className="hidden w-56 flex-col border-r border-gray-200 bg-white px-4 py-8 lg:flex">
-          <div className="mb-8 text-2xl font-bold text-orange-500">Leadzup</div>
+          <Link href={'/'} className="mb-8 text-2xl font-bold text-orange-500">Leadzup</Link>
           <nav className="space-y-1">
             {navItems.map((item) => (
               <button
@@ -195,7 +192,7 @@ export default function DashboardPage() {
                   {/* PurposeOfUse */}
                   <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
                     <p className="text-xs font-semibold uppercase text-indigo-500">
-                      PurposeOfUse
+                      Purpose Of Use
                     </p>
                     <p className="text-base text-gray-900 wrap-break-word pt-1">
                       {userData.PurposeOfUse}
@@ -227,14 +224,18 @@ export default function DashboardPage() {
                       Keywords
                     </p>
                     <div className="text-base text-gray-900 pt-1 break-words flex gap-1.5">
-                      {userData.keywords.map((keyword, i) => (
-                        keyword.trim()?<div
-                          key={i}
-                          className=" text-gray-600 text-md rounded-xl border border-gray-100 bg-white p-1 shadow-sm"
-                        >
-                          {keyword.trim()}{" "}
-                        </div>:<div key={i}></div>
-                      ))}
+                      {userData.keywords.map((keyword, i) =>
+                        keyword.trim() ? (
+                          <div
+                            key={i}
+                            className=" text-gray-600 text-md rounded-xl border border-gray-100 bg-white p-1 shadow-sm"
+                          >
+                            {keyword.trim()}{" "}
+                          </div>
+                        ) : (
+                          <div key={i}></div>
+                        )
+                      )}
                     </div>
                   </div>
                 </div>

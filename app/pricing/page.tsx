@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useState } from "react";
 import { Check } from "lucide-react"; // Importing an icon for the checkmark
+import Link from "next/link";
 
 // Define the vibrant orange color for consistency
 const VIBRANT_orange = "#FF6B35";
@@ -59,8 +60,8 @@ export default function PricingPage() {
           {/* Brand/Logo Section */}
           <div className="flex items-center gap-2">
              {/* Simple Logo Placeholder (N in a circle) */}
-            <div className="h-6 w-6 rounded-full bg-orange-500 flex items-center justify-center text-white font-bold text-sm">N</div>
-            <p className="font-bold text-lg text-gray-800">Leadzup</p>
+            <div className="h-6 w-6 rounded-full bg-orange-500 flex items-center justify-center text-white font-bold text-sm">L</div>
+            <Link href={'/'} className="font-bold text-lg text-gray-800">Leadzup</Link>
           </div>
           
           <p className="text-sm font-semibold uppercase text-gray-500 tracking-wider mb-4">
@@ -148,7 +149,7 @@ export default function PricingPage() {
           
           {/* CTA Button */}
           <button 
-            className="w-full py-3 mt-6 text-white text-lg font-bold rounded-xl shadow-lg transition-transform duration-150 hover:scale-[1.01]"
+            className="cursor-pointer w-full py-3 mt-6 text-white text-lg font-bold rounded-xl shadow-lg transition-transform duration-150 hover:scale-[1.01]"
             style={{ backgroundColor: VIBRANT_orange }}
           >
             Start Growing Now

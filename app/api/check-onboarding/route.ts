@@ -10,7 +10,7 @@ export async function POST(req: NextRequest) {
     });
 
     if (!response) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
+      return NextResponse.json({ exists:false }, { status: 200 });
     }
 
     const {
@@ -34,9 +34,9 @@ export async function POST(req: NextRequest) {
       isDemoProvided,
       currentCredits,
     };
-    console.log(neededResponse);
 
-    return NextResponse.json(neededResponse, { status: 200 });
+
+    return NextResponse.json({exists:true,neededResponse}, { status: 200 });
   } catch (error) {
     console.error("Database error:", error);
     return NextResponse.json(

@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import { SessionProvider } from "next-auth/react";
 import { Inter } from "next/font/google";
 
@@ -12,11 +12,5 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return (
-    <html lang="en">
-      <body className={`${inter.variable} antialiased`}>
-        <SessionProvider>{children}</SessionProvider>
-      </body>
-    </html>
-  );
+  return <SessionProvider>{children}</SessionProvider>;
 }
