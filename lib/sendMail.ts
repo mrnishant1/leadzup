@@ -16,12 +16,12 @@ const transporter = nodemailer.createTransport({
 
 async function sendMail(gmail:string) {
   
-  //   const info = await transporter.sendMail({
-  //   from: '"Reddit scipt" <luella32@ethereal.email>',
-  //   to: "nishantkumaragra@gmail.com",
-  //   subject: "New user signed In",
-  //   text: `User signed IN with gmail ${gmail}`, // plain‑text body
-  // });
+    const info = await transporter.sendMail({
+    from: '"Reddit scipt" <luella32@ethereal.email>',
+    to: "nishantkumaragra@gmail.com",
+    subject: "New user signed In",
+    text: `User signed IN with gmail ${gmail}`, // plain‑text body
+  });
 
   
   const welcome = await resend.emails.send({
