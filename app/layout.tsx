@@ -10,9 +10,26 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Leadzup - Get Customers From Reddit",
+  title: "LeadZup - Personalised marketing Hub",
   description:
-    "Turn Reddit DMs Into Customers. Find high impact Reddit conversations to help you naturally promote your product and get more sales.",
+    "LeadZup provides inovative advertisement solution to the Brands, we work on personalsed advertisement ads modal, we monitor reddit like forums for 24x7, looking for the users that are in need of products that Brands provides we help Brands products to position them into conversation and pitch the products to user.",
+  keywords: [
+    "LeadZup",
+    "web advertisement agency",
+    "digital Marketing",
+    "tech",
+    "marketing",
+    "marketing solutions",
+    "marketing agency",
+    "personalised ads",
+  ],
+  icons: {
+    icon: "/favicon.jpg",
+  },
+  authors: [{ name: "Leazup.site" }],
+  other: {
+    "google-site-verification": "ZU59Yq-xG2Jga0ExqdDp44yBs3CtJiUNn8BqoxRp2Xc",
+  },
 };
 
 export default function RootLayout({

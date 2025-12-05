@@ -10,9 +10,6 @@ export default function Hero() {
       <section className="container mx-auto px-6 py-10 w-[80%]">
         <div className="flex flex-col lg:flex-row items-center gap-12">
           <div className="flex-1">
-            <div className="inline-block mb-4 px-4 py-1.5 bg-purple-100 text-purple-700 rounded-full text-sm font-medium">
-              Launching Leadzup on 1 Dec 2025 →
-            </div>
             <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6 leading-tight">
               Turn{" "}
               <span className="inline-flex items-center gap-2">
